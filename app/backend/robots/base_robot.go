@@ -1,9 +1,15 @@
 package robots
 
+import (
+	"drone-rescue/utils"
+	"gonum.org/v1/gonum/mat"
+)
+
 // Interface method implementation and attributes used by all robots
 type BaseRobot struct {
 	Id              string
-	Position        [3]float64
+	DesiredPosition mat.VecDense // Desired position of the robot
+	ActualPosition  mat.VecDense // Actual position of the robot
 	DescriptionText string
 	Status          string
 	BatteryLevel    float64
@@ -13,8 +19,12 @@ func (r *BaseRobot) GetId() string {
 	return r.Id
 }
 
-func (r *BaseRobot) GetPosition() [3]float64 {
-	return r.Position
+func (r *BaseRobot) GetDesiredPosition() mat.VecDense {
+	return r.DesiredPosition
+}
+
+func (r *BaseRobot) GetActualPosition() mat.VecDense {
+	return r.ActualPosition
 }
 
 func (r *BaseRobot) GetDescription() string {
@@ -30,8 +40,17 @@ func (r *BaseRobot) GetBatteryLevel() float64 {
 }
 
 // Only moving in the X and Y axis, since Z axis is only used for flying
-func (r *BaseRobot) Move(x, y float64) error {
-	r.Position[0] += x
-	r.Position[1] += y
-	return nil
+func (r *BaseRobot) Move(dX, dY float64) float64 {
+	r.DesiredPosition.SetVec(utils.X_INDEX, r.DesiredPosition.At(utils.X_INDEX, 0)+dX)
+	r.DesiredPosition.SetVec(utils.Y_INDEX, r.DesiredPosition.At(utils.Y_INDEX, 0)+dY)
+
+	return r.PositionError()
+}
+
+// Find the absolute value between the desired position and the actual position
+func (r *BaseRobot) PositionError() float64 {
+	error := mat.NewVecDense(3, nil)
+	error.SubVec(&r.DesiredPosition, &r.ActualPosition)
+	norm := mat.Norm(error, 2)
+	return norm
 }

@@ -1,5 +1,9 @@
 package robots
 
+import (
+	"drone-rescue/utils"
+)
+
 // Commands specific to drones, mainly using Mavlink
 type FlyingRobot struct {
 	BaseRobot // Embedding BaseRobot
@@ -8,21 +12,28 @@ type FlyingRobot struct {
 	YawVelocity      float64
 }
 
-func (r *FlyingRobot) Ascend() error {
-	r.Status = "Ascending"
-	r.Position[2] += 1 // Increasing hanging the Z position
-	return nil
+func (r *FlyingRobot) ChangeAltitude(dist float64) float64 {
+	if dist < 0 {
+		r.Status = "Descending"
+	} else {
+		r.Status = "Ascending"
+	}
+
+	r.DesiredPosition.SetVec(utils.Z_INDEX, r.DesiredPosition.At(utils.Z_INDEX, 0)+dist) // Increasing hanging the Z position
+
+	return r.PositionError()
 }
 
-func (r *FlyingRobot) Descend() error {
-	r.Status = "Descending"
-	r.Position[2] -= 1 // Decreasing hanging the Z position
-	return nil
+func (r *FlyingRobot) Move(dX, dY, dZ float64) float64 {
+	r.DesiredPosition.SetVec(utils.X_INDEX, r.DesiredPosition.At(utils.X_INDEX, 0)+dX)
+	r.DesiredPosition.SetVec(utils.Y_INDEX, r.DesiredPosition.At(utils.Y_INDEX, 0)+dY)
+	r.DesiredPosition.SetVec(utils.Z_INDEX, r.DesiredPosition.At(utils.Z_INDEX, 0)+dZ)
+
+	return r.PositionError()
 }
 
-func (r *FlyingRobot) Move(x, y, z float64) error {
-	r.Position[0] += x
-	r.Position[1] += y
-	r.Position[2] += z
+func (r *FlyingRobot) Land() error {
+	r.DesiredPosition.SetVec(utils.Z_INDEX, 0) // Setting the Z position to 0 to land the drone
+
 	return nil
 }
