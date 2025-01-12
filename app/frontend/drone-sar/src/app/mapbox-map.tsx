@@ -24,7 +24,7 @@ function MapboxMap() {
         // otherwise, create a map instance
     const mapboxMap = new mapboxgl.Map({
       container: node,
-            accessToken: 'pk.eyJ1IjoiY2Fsc2Z1IiwiYSI6ImNtNXN0czRsODBwM3MyanE4dHNyeTl6ZHEifQ.uQdtPEBEqncCUPtvoYo3fA',
+            accessToken: process.env.MAPBOX_KEY,
             style: "mapbox://styles/mapbox/streets-v11",
       center: [-74.5, 40],
       zoom: 9,
