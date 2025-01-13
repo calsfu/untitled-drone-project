@@ -37,3 +37,15 @@ func (r *FlyingRobot) Land() error {
 
 	return nil
 }
+
+// Constructor
+func NewFlyingRobot(id string, description string, batteryLevel float64) *FlyingRobot {
+	return &FlyingRobot{
+		BaseRobot: BaseRobot{
+			Id:              id,
+			DescriptionText: description,
+			Status:          "Idle",
+			BatteryLevel:    batteryLevel,
+		},
+	}
+}
